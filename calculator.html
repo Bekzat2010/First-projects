@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        #history {
+            margin-top: 30px;
+            text-align: left;
+            display: inline-block;
+        }
+        #history ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        #history li {
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>Простой калькулятор</h2>
+        <input type="number" id="num1" placeholder="Первое число">
+        <input type="number" id="num2" placeholder="Второе число">
+        <div class="buttons">
+            <button onclick="calculate('+')">+</button>
+            <button onclick="calculate('-')">-</button>
+            <button onclick="calculate('*')">*</button>
+            <button onclick="calculate('/')">/</button>
+            <button onclick="calculate('%')">%</button>
+            <button onclick="clearAll()">Очистить</button>
+        </div>
+        <div id="result">Результат: 0</div>
+
+        <div class="expression-section">
+            <h3>Режим выражения</h3>
+            <input type="text" id="expression" placeholder="Пример: 50% + 20">
+            <button onclick="calculateExpression()">Посчитать</button>
+        </div>
+
+        <div id="history">
+            <h3>История вычислений</h3>
+            <ul id="historyList"></ul>
+            <button onclick="clearHistory()">Очистить историю</button>
+        </div>
+    </div>
+
+    <script>
+        function calculate(operator) {
+            const num1 = parseFloat(document.getElementById('num1').value);
+            const num2 = parseFloat(document.getElementById('num2').value);
+            let result;
+
+            if (isNaN(num1) || isNaN(num2)) {
+                result = 'Введите два числа!';
+            } else {
+                if (operator === '+') result = num1 + num2;
+                else if (operator === '-') result = num1 - num2;
+                else if (operator === '*') result = num1 * num2;
+                else if (operator === '/') {
+                    if (num2 === 0) result = 'Ошибка: Деление на 0!';
+                    else result = num1 / num2;
+                } else if (operator === '%') {
+                    result = (num1 / 100) * num2; // X процентов от Y
+                }
+            }
+
+            document.getElementById('result').innerText = "Результат: " + result;
+            if (!isNaN(result)) {
+                addToHistory(`${num1} ${operator} ${num2} = ${result}`);
+            }
+        }
+
+        function calculateExpression() {
+            const input = document.getElementById('expression').value;
+            let expression = input;
+
+            // Заменяем 50% на ((50)/100) для корректного eval
+            expression = expression.replace(/(\d+(\.\d+)?)%/g, '(($1)/100)');
+
+            try {
+                const result = eval(expression);
+                document.getElementById('result').innerText = "Результат: " + result;
+                addToHistory(`${input} = ${result}`);
+            } catch (e) {
+                document.getElementById('result').innerText = "Ошибка в выражении!";
+            }
+        }
+
+        function clearAll() {
+            document.getElementById("num1").value = '';
+            document.getElementById("num2").value = '';
+            document.getElementById("expression").value = '';
+            document.getElementById("result").innerText = 'Результат: 0';
+        }
+
+        function addToHistory(entry) {
+            const historyList = document.getElementById('historyList');
+            const li = document.createElement('li');
+            li.textContent = entry;
+            historyList.prepend(li); // добавляет в начало списка
+        }
+
+        function clearHistory() {
+            document.getElementById('historyList').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
